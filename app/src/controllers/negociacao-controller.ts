@@ -45,10 +45,29 @@ export class NegociacaoController {
 
     }
 
-  private ehDiaUtil(data: Date) {
-    return data.getDay() > DiasDaSemana.DOMINGO
-          && data.getDay() < DiasDaSemana.SABADO;
-  }
+    importarDados(): void {
+      fetch('http://localhost:8080/dados')
+        .then(res => res.json())
+        .then((dados: any[]) => {
+          return dados.map(dadoDeHoje => {
+            return new Negociacao(
+              new Date(), 
+              dadoDeHoje.vezes, 
+              dadoDeHoje.montante
+            )
+          })
+        })
+        .then(negociacoesDeHoje => {
+          for (let negociacao of negociacoesDeHoje) {
+            this.negociacoes.adiciona(negociacao);
+          }
+        });
+    }
+    
+    private ehDiaUtil(data: Date) {
+      return data.getDay() > DiasDaSemana.DOMINGO
+            && data.getDay() < DiasDaSemana.SABADO;
+    }
 
   private limparFormulario(): void {
     this.inputData.value = '';

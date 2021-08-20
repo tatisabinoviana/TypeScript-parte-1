@@ -10,3 +10,12 @@ if (form) {
 } else {
   throw Error('não foi possível inicializar a aplicação, verifique se o form existe');
 }
+
+const botaoImporta = document.querySelector('#botao-importa');
+if (botaoImporta) {
+  botaoImporta.addEventListener('click', () => {
+    controller.importarDados();
+  });
+} else {
+  throw Error('Botão importa não foi encontrado');
+}
