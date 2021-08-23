@@ -1,2 +1,1 @@
-export class Imprmivel {
-}
+export {};
