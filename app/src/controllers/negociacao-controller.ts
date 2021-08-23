@@ -1,3 +1,4 @@
+import { NegociacoesService } from './../services/negociacoes-service.js';
 import { domInjector } from '../decorators/dom-injector.js';
 import { inspect } from '../decorators/inspect.js';
 import { logarTempoDeExecucao } from '../decorators/logar-tempo-de-execucao.js';
@@ -17,6 +18,7 @@ export class NegociacaoController {
   private negociacoes = new Negociacoes();
   private negociacoesView = new NegociacoesView('#negociacoesView');
   private mensagemView = new MensagemView('#mensagemView');
+  private negociacoesService = new NegociacoesService();
 
   constructor() {
     this.negociacoesView.update(this.negociacoes);
@@ -40,30 +42,30 @@ export class NegociacaoController {
       }
       
       this.negociacoes.adiciona(negociacao);
+      console.log(`
+        Data: ${negociacao.data}, 
+        Quantidade: ${negociacao.quantidade}, 
+        Valor: ${negociacao.valor}
+      `);
+
+      console.log(JSON.stringify(this.negociacoes));
+      
       this.limparFormulario();
       this.atualizaView();
 
     }
 
-    importarDados(): void {
-      fetch('http://localhost:8080/dados')
-        .then(res => res.json())
-        .then((dados: any[]) => {
-          return dados.map(dadoDeHoje => {
-            return new Negociacao(
-              new Date(), 
-              dadoDeHoje.vezes, 
-              dadoDeHoje.montante
-            )
-          })
-        })
-        .then(negociacoesDeHoje => {
-          for (let negociacao of negociacoesDeHoje) {
-            this.negociacoes.adiciona(negociacao);
-          }
-        });
+    public importarDados(): void {
+      this.negociacoesService
+          .obterNegociacoesDoDia()  
+          .then(negociacoesDeHoje => {
+            for (let negociacao of negociacoesDeHoje) {
+              this.negociacoes.adiciona(negociacao);
+            }
+            this.negociacoesView.update(this.negociacoes);
+          });
     }
-    
+
     private ehDiaUtil(data: Date) {
       return data.getDay() > DiasDaSemana.DOMINGO
             && data.getDay() < DiasDaSemana.SABADO;
